@@ -36,7 +36,8 @@ import com.mechalikh.pureedgesim.taskgenerator.Task;
  * In the {@code crash} scenario, every helper device (one that computes and
  * sends no requests) inside a random disk of {@value #CRASH_RADIUS} meters goes
  * down at 120, 240 and 360 s, and stays down. One edge data center is also down
- * from {@value #EDGE_DOWN} s to {@value #EDGE_UP} s. The disks and the data
+ * from {@value #EDGE_DOWN} s to {@value #EDGE_UP} s, unless the system property
+ * {@code example30.edgeOutage} is {@code false}. The disks and the data
  * center are drawn from the scenario seed, so every orchestrator faces the same
  * failures. In the {@code battery} scenario devices die when their battery
  * empties. In every scenario, a result is lost when the moving helper that
@@ -59,6 +60,7 @@ public class Example30FailureSimulationManager extends DefaultSimulationManager
 	private static final int DATACENTER_UP = 12002;
 
 	private final String failureScenario;
+	private final boolean edgeOutage;
 	private final Random failures;
 	private String workloadHash = "";
 	private int requestsGenerated;
@@ -86,6 +88,7 @@ public class Example30FailureSimulationManager extends DefaultSimulationManager
 			int iteration, Scenario scenario) {
 		super(simLog, pureEdgeSim, simulationId, iteration, scenario);
 		failureScenario = System.getProperty("example30.scenario", "crash");
+		edgeOutage = !"false".equals(System.getProperty("example30.edgeOutage", "true"));
 		failures = new Random(Randomness.getSeed() * 7919L + 17L);
 	}
 
@@ -97,6 +100,8 @@ public class Example30FailureSimulationManager extends DefaultSimulationManager
 			return;
 		for (double time : CRASH_TIMES)
 			schedule(this, time, CRASH);
+		if (!edgeOutage)
+			return;
 		schedule(this, EDGE_DOWN, DATACENTER_DOWN);
 		schedule(this, EDGE_UP, DATACENTER_UP);
 	}
@@ -240,6 +245,7 @@ public class Example30FailureSimulationManager extends DefaultSimulationManager
 		StringBuilder json = new StringBuilder();
 		json.append('{');
 		field(json, "scenario", failureScenario);
+		field(json, "edge_outage", "crash".equals(failureScenario) && edgeOutage);
 		field(json, "algorithm", scenario.getStringOrchAlgorithm());
 		field(json, "architecture", scenario.getStringOrchArchitecture());
 		field(json, "devices", scenario.getDevicesCount());

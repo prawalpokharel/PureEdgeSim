@@ -25,6 +25,8 @@ import com.mechalikh.pureedgesim.simulationmanager.SimulationAbstract;
  * <li>{@code example30.seed}: the random seed (default 1);</li>
  * <li>{@code example30.algorithms}: a comma-separated list of algorithms of
  * {@link Example30CriticalityOrchestrator} (default {@code CRITICALITY});</li>
+ * <li>{@code example30.edgeOutage}: {@code false} keeps every edge data center
+ * up in the crash scenario (default {@code true});</li>
  * <li>{@code example30.out}: a file to which each run appends one JSON line of
  * metrics (optional).</li>
  * </ul>
