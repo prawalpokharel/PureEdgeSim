@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+*   New `Example30` places the subtasks of service graphs by how much of the graph
+    depends on each one, and measures it under three kinds of device failure.
+    `Example30CriticalityOrchestrator` weighs the estimated delay against a risk
+    for each candidate (0 for the cloud and edge data centers, up to 1 for a moving
+    device on a low battery), scaled by a criticality score of the subtask, and
+    `Example30FailureSimulationManager` crashes helper devices in random disks,
+    takes one edge data center down for a minute, and fails a result whose moving
+    helper is out of range when it returns. Over 10 seeds and 100 to 1,000 devices,
+    the criticality-aware placement failed 0.00% of requests when devices die of
+    empty batteries against 0.22% for latency-greedy placement, but
+    2.50% against 1.13% when an edge data center goes down, because it moves all
+    the work onto the data centers.
+
 ## Version 6.1 Changelog (November 1st 2026)
 
 *   Two engine bases that a dependent simulator can now extend. `AbstractQueueElement`

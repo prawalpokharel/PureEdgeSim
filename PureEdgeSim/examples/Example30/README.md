@@ -85,3 +85,26 @@ mvn exec:java -Dexec.mainClass="examples.Example30" -Dexample30.scenario=crash -
 `-Dexample30.out=results.jsonl` appends the metrics of each run to a file as
 one JSON line: requests generated and failed, failure reasons, makespan,
 energy by layer, dead devices and where the subtasks ran.
+
+## What to look for
+
+Each run prints one line with the requests that failed. Over 10 seeds and
+100, 500 and 1,000 devices, the share of requests that failed was:
+
+| Algorithm | `battery` | `mobility` | `crash` | Subtasks on devices |
+| --- | --- | --- | --- | --- |
+| `TRADE_OFF` | 0.23% | 0.77% | 0.68% | 92% |
+| `LATENCY_GREEDY` | 0.22% | 0.58% | 1.13% | 81% |
+| `RELIABLE_INNER` | 0.07% | 0.91% | 2.54% | 15% |
+| `CRITICALITY` | 0.00% | 0.91% | 2.50% | 0% |
+
+Keeping work off risky devices pays only when devices are what fails. With
+these weights `CRITICALITY` puts no subtask on a device, so it gives the same
+results as `LATENCY_GREEDY` with the `EDGE_AND_CLOUD` architecture
+(`-Dexample30.architecture=EDGE_AND_CLOUD`). That removes the battery failures,
+but it concentrates the work on four edge data centers. The outage of one of
+them costs more than the device crashes it avoided, and a phone that walks away
+from its data center loses its task. With the outage switched off
+(`-Dexample30.edgeOutage=false`), `CRITICALITY` lost no request in the crash
+scenario, against 0.17% for `LATENCY_GREEDY` at 1,000 devices. `CRITICALITY_C` and the full index give identical results, and so
+do `RELIABLE_INNER` and `DOWNSTREAM_REACH`.
