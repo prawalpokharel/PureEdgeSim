@@ -25,6 +25,8 @@ import com.mechalikh.pureedgesim.simulationmanager.SimulationAbstract;
  * <li>{@code example30.seed}: the random seed (default 1);</li>
  * <li>{@code example30.algorithms}: a comma-separated list of algorithms of
  * {@link Example30CriticalityOrchestrator} (default {@code CRITICALITY});</li>
+ * <li>{@code example30.architecture}: the orchestration architecture (default
+ * {@code ALL}); {@code EDGE_AND_CLOUD} keeps every subtask off the devices;</li>
  * <li>{@code example30.edgeOutage}: {@code false} keeps every edge data center
  * up in the crash scenario (default {@code true});</li>
  * <li>{@code example30.out}: a file to which each run appends one JSON line of
@@ -47,7 +49,8 @@ public class Example30 {
 		System.setProperty("example30.scenario", scenario);
 		Path parameters = withOverrides(Paths.get(settings, "simulation_parameters.properties"),
 				Integer.getInteger("example30.devices", 100), Long.getLong("example30.seed", 1L),
-				System.getProperty("example30.algorithms", "CRITICALITY"));
+				System.getProperty("example30.algorithms", "CRITICALITY"),
+				System.getProperty("example30.architecture", "ALL"));
 
 		Simulation sim = new Simulation();
 		sim.setCustomSettingsFolder(settings);
@@ -65,7 +68,8 @@ public class Example30 {
 	 * Writes a copy of the parameters file with the device count, the seed and the
 	 * algorithms of this run.
 	 */
-	static Path withOverrides(Path source, int devices, long seed, String algorithms) throws IOException {
+	static Path withOverrides(Path source, int devices, long seed, String algorithms, String architecture)
+			throws IOException {
 		Properties properties = new Properties();
 		try (Reader reader = Files.newBufferedReader(source, StandardCharsets.UTF_8)) {
 			properties.load(reader);
@@ -75,6 +79,7 @@ public class Example30 {
 		properties.setProperty("edge_device_counter_size", Integer.toString(devices));
 		properties.setProperty("random_seed", Long.toString(seed));
 		properties.setProperty("orchestration_algorithms", algorithms);
+		properties.setProperty("orchestration_architectures", architecture);
 		Path copy = Files.createTempFile("example30-", ".properties");
 		copy.toFile().deleteOnExit();
 		try (Writer writer = Files.newBufferedWriter(copy, StandardCharsets.UTF_8)) {
